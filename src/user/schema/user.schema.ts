@@ -17,9 +17,6 @@ export class UserDocument extends Document<Types.ObjectId> {
   @Prop({ type: String, required: true, unique: true })
   email: string;
 
-  @Prop({ type: String, required: true, select: false })
-  passHash: string;
-
   createdAt!: Date;
 
   updatedAt!: Date;
