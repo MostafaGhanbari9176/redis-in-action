@@ -3,12 +3,14 @@ import { UserService } from 'src/user/user.service';
 import { Request, Response } from 'express';
 import { CredentialDTO } from './dto/credential.dto';
 import { JwtService } from '@nestjs/jwt';
+import { RedisService } from 'src/redis/redis.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly userService: UserService,
     private readonly jwtService: JwtService,
+    private readonly redis: RedisService
   ) { }
 
   async signUp(email: string) {
@@ -18,11 +20,11 @@ export class AuthService {
       throw new BadRequestException('Email is already in use');
     }
 
-    this.generateAndStoreOTP(email, "sign-up")
+    this.generateAndStoreOTP(email)
   }
 
-  confirmSignUp(credential: CredentialDTO, response: Response): Promise<{ token: string }> {
-    const otpIsValid = this.otpValidation(credential, "sign-up")
+  async confirmSignUp(credential: CredentialDTO, response: Response): Promise<{ token: string }> {
+    const otpIsValid = await this.otpValidation(credential)
 
     if (!otpIsValid) {
       throw new BadRequestException("otp is not valid, or expired")
@@ -40,11 +42,11 @@ export class AuthService {
       throw new BadRequestException('user not exists');
     }
 
-    this.generateAndStoreOTP(email, "sign-in")
+    this.generateAndStoreOTP(email)
   }
 
-  confirmSignIn(credential: CredentialDTO, response: Response): Promise<{ token: string }> {
-    const otpIsValid = this.otpValidation(credential, "sign-in")
+  async confirmSignIn(credential: CredentialDTO, response: Response): Promise<{ token: string }> {
+    const otpIsValid = await this.otpValidation(credential)
 
     if (!otpIsValid) {
       throw new BadRequestException("otp is not valid, or expired")
@@ -57,17 +59,22 @@ export class AuthService {
     const refreshToken = request.cookies['RefreshToken'];
   }
 
-  private otpValidation(credential: CredentialDTO, route: string): boolean {
-    // validate otp through redis
-    return true;
+  private async otpValidation(credential: CredentialDTO): Promise<boolean> {
+    const otp = await this.redis.get(`${credential.email}:OTP`)
+
+    if(!otp){
+      throw new BadRequestException('otp is expired')
+    }
+
+    return otp === credential.otp;
   }
 
-  private generateAndStoreOTP(email: string, route: string) {
+  private async generateAndStoreOTP(email: string) {
     const code = this.generateOTP()
 
     this.sendOTP(email, code)
 
-    //store OTP in redis with expiration time
+    await this.redis.set(`${email}:OTP`, code, 30/* 10 second */)
   }
 
   private sendOTP(email: string, code: string) {

@@ -23,7 +23,7 @@ export class AuthController {
     return this.authService.signIn(email);
   }
 
-  @Post('sign-in')
+  @Post('sign-in/confirm')
   confirmSignIn(
     @Body() data: CredentialDTO,
     @Res({ passthrough: true }) response: Response,
