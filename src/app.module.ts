@@ -7,6 +7,7 @@ import { UserModule } from './user/user.module';
 import { RedisModule } from './redis/redis.module';
 import { FixedWindowRateLimitGuard } from './common/guard/rate_limitation/fixed-window-limitation.guard';
 import { SlidingWindowLimitationGuard } from './common/guard/rate_limitation/sliding-window-limitation.guard';
+import { TokenBucketLimitationGuard } from './common/guard/rate_limitation/toke-bucket-limitation.guard';
 
 @Module({
   imports: [DatabaseModule, AuthModule, UserModule, RedisModule],
@@ -15,7 +16,7 @@ import { SlidingWindowLimitationGuard } from './common/guard/rate_limitation/sli
     AppService,
     {
       provide: "APP_GUARD",
-      useClass: SlidingWindowLimitationGuard
+      useClass: TokenBucketLimitationGuard
     }
   ],
 })
