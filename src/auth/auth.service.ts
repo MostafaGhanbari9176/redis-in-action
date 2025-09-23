@@ -13,6 +13,8 @@ export class AuthService {
     private readonly redis: RedisService
   ) { }
 
+  otpRedisKey = (email: string) => `otp:email:${email}`
+
   async signUp(email: string) {
     const emailIsFree = await this.userService.emailIsFree(email);
 
@@ -20,7 +22,7 @@ export class AuthService {
       throw new BadRequestException('Email is already in use');
     }
 
-    this.generateAndStoreOTP(email)
+    await this.generateAndSendOTP(email)
   }
 
   async confirmSignUp(credential: CredentialDTO, response: Response): Promise<{ token: string }> {
@@ -42,7 +44,7 @@ export class AuthService {
       throw new BadRequestException('user not exists');
     }
 
-    this.generateAndStoreOTP(email)
+    await this.generateAndSendOTP(email)
   }
 
   async confirmSignIn(credential: CredentialDTO, response: Response): Promise<{ token: string }> {
@@ -60,21 +62,25 @@ export class AuthService {
   }
 
   private async otpValidation(credential: CredentialDTO): Promise<boolean> {
-    const otp = await this.redis.get(`${credential.email}:OTP`)
+    const otp = await this.redis.get(this.otpRedisKey(credential.email))
 
-    if(!otp){
+    if (!otp) {
       throw new BadRequestException('otp is expired')
     }
 
     return otp === credential.otp;
   }
 
-  private async generateAndStoreOTP(email: string) {
+  private async generateAndSendOTP(email: string) {
     const code = this.generateOTP()
 
-    this.sendOTP(email, code)
+    const result = await this.redis.setNX(this.otpRedisKey(email), code, 30/* in second */)
 
-    await this.redis.set(`${email}:OTP`, code, 30/* 10 second */)
+    if(!result){
+      throw new BadRequestException('the otp already sent, please try 30 second later!')
+    }
+
+    this.sendOTP(email, code)
   }
 
   private sendOTP(email: string, code: string) {

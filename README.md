@@ -9,7 +9,7 @@ This sandbox demonstrates how Redis can power scalable backend systems using its
 ### 🔐 Authentication & Security
 
 - OTP storage with expiry — ✅ Implemented
-- Rate limiting & API throttling — 🛠️ Coming Soon
+- Rate limiting & API throttling — ✅ Implemented
 - Distributed locks (Redlock) — 🛠️ Coming Soon
 
 ### 🧠 Caching & Sessions
