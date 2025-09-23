@@ -6,15 +6,33 @@ A hands-on backend lab showcasing real-world Redis use cases—from OTP storage 
 
 This sandbox demonstrates how Redis can power scalable backend systems using its diverse data types and modules:
 
-- 🔐 **OTP storage** with expiry — ✅ Implemented
-- 🧠 **Caching** strategies (sessions, API responses) — 🛠️ Coming Soon
-- 📜 **Full-text search** with — 🛠️ Coming Soon
-- 🧩 **Autocomplete** using sorted sets — 🛠️ Coming Soon
-- 🧱 **Task queues** with lists — 🛠️ Coming Soon
-- 🗺️ **Geospatial queries** for location-based features — 🛠️ Coming Soon
-- 📊 **Analytics** with bitmaps and HyperLogLog — 🛠️ Coming Soon
-- 🔄 **Pub/Sub** for real-time messaging — 🛠️ Coming Soon
-- 🧬 **Streams** for event sourcing and logs — 🛠️ Coming Soon
+### 🔐 Authentication & Security
+
+- OTP storage with expiry — ✅ Implemented
+- Rate limiting & API throttling — 🛠️ Coming Soon
+- Distributed locks (Redlock) — 🛠️ Coming Soon
+
+### 🧠 Caching & Sessions
+- Session management (user sessions, tokens) — 🛠️ Coming Soon
+- API response caching with invalidation — 🛠️ Coming Soon
+
+### 📊 Analytics & Metrics
+- Bitmaps for user activity tracking (daily/weekly active users, streaks) — 🛠️ Coming Soon
+- HyperLogLog for unique counts (e.g., unique visitors) — 🛠️ Coming Soon
+
+### 🧩 Data Structures & Features
+- Leaderboards with sorted sets — 🛠️ Coming Soon
+- Autocomplete & prefix search with sorted sets — 🛠️ Coming Soon
+- Delayed jobs & scheduling with sorted sets — 🛠️ Coming Soon
+- Reliable task queues with lists (BRPOPLPUSH pattern) — 🛠️ Coming Soon
+
+### 🗺️ Advanced Queries
+- Geospatial queries for location-based features — 🛠️ Coming Soon
+- Full-text search with RediSearch — 🛠️ Coming Soon
+
+### 🔄 Messaging & Event Processing
+- Pub/Sub for lightweight real-time messaging — 🛠️ Coming Soon
+- Streams for event sourcing, messaging, and logs — 🛠️ Coming Soon
 
 ## 🚀 Getting Started
 
