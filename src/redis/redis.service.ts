@@ -7,6 +7,18 @@ export class RedisService {
         @Inject("REDIS_CLIENT") private readonly client: Redis
     ) { }
 
+    async zAdd(key: string, score: number, member: string) {
+        await this.client.zadd(key, score, member)
+    }
+
+    async zRemoveRangeByScore(key: string, minScore: number, maxScore: number) {
+        await this.client.zremrangebyscore(key, minScore, maxScore)
+    }
+
+    async zCount(key: string): Promise<number> {
+        return await this.client.zcard(key)
+    }
+
     async increment(key: string, ttl?: number): Promise<number> {
         let isFirst: string | null
         if (ttl) {
