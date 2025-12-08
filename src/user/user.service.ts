@@ -1,8 +1,9 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { UserDocument } from './schema/user.schema';
 import { Model } from 'mongoose';
 import { RedisService } from 'src/redis/redis.service';
+import { UpdateUserDto } from './dto/user.dto';
 
 @Injectable()
 export class UserService {
@@ -48,7 +49,7 @@ export class UserService {
     return user;
   }
 
-  private async getNewUserName(email: string, counter:number = 1): Promise<string> {
+  private async getNewUserName(email: string, counter: number = 1): Promise<string> {
     const username = await this.generateUsername(counter);
     const free = await this.redis.lock(username);
     if (!free) {
@@ -58,20 +59,47 @@ export class UserService {
     return username;
   }
 
-  private async generateUsername(counter:number): Promise<string> {
+  private async generateUsername(counter: number): Promise<string> {
     const userCount = await this.userModel.countDocuments();
 
     return `user${userCount + counter}`;
   }
 
-  async getUserIdByEmail(email: string):Promise<string> {
-    const user = await this.userModel.findOne({email:email}, {id:1}).exec()
-    
-    if(!user){
+  async getUserIdByEmail(email: string): Promise<string> {
+    const user = await this.userModel.findOne({ email: email }, { id: 1 }).exec()
+
+    if (!user) {
       throw new InternalServerErrorException("something is go wrong!")
     }
 
     return user.id.toString()
+  }
+
+  async updateUser(user: UserDocument, newData: UpdateUserDto) {
+    this.checkAndLockUserName(newData.username)
+
+    await user.updateOne(newData)
+    
+    if(newData.username){
+      this.redis.unlock(newData.username)
+    }
+  }
+
+  async checkAndLockUserName(username: string | undefined) {
+    if (!username) {
+      return
+    }
+
+    const free = await this.redis.lock(username)
+    if (!free) {
+      throw new BadRequestException("username is not free!")
+    }
+
+    const exists = await this.userModel.exists({ username: username }).exec()
+    if (exists) {
+      this.redis.unlock(username)
+      throw new BadRequestException("username is taken!")
+    }
   }
 
 }
