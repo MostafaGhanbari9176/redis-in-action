@@ -8,6 +8,7 @@ import { RedisModule } from './redis/redis.module';
 import { FixedWindowRateLimitGuard } from './common/guard/rate_limitation/fixed-window-limitation.guard';
 import { SlidingWindowLimitationGuard } from './common/guard/rate_limitation/sliding-window-limitation.guard';
 import { TokenBucketLimitationGuard } from './common/guard/rate_limitation/toke-bucket-limitation.guard';
+import { AuthGuard } from './common/guard/auth.guard';
 
 @Module({
   imports: [DatabaseModule, AuthModule, UserModule, RedisModule],
@@ -17,6 +18,10 @@ import { TokenBucketLimitationGuard } from './common/guard/rate_limitation/toke-
     {
       provide: "APP_GUARD",
       useClass: TokenBucketLimitationGuard
+    },
+    {
+      provide: "APP_GUARD",
+      useClass: AuthGuard
     }
   ],
 })

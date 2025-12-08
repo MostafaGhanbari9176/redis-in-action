@@ -94,7 +94,9 @@ export class AuthService {
   }
 
   private async getTokenResponse(email: string, response: Response): Promise<{ token: string }> {
-    const { accessToken, refreshToken } = await this.createTokens(email);
+    const userId = await this.userService.getUserIdByEmail(email)
+    
+    const { accessToken, refreshToken } = await this.createTokens(userId);
 
     response.cookie('RefreshToken', refreshToken, {
       httpOnly: true,
@@ -107,10 +109,10 @@ export class AuthService {
   }
 
   private async createTokens(
-    email: string,
+    userId: string,
   ): Promise<{ accessToken: string; refreshToken: string }> {
     const accessToken = await this.jwtService.signAsync(
-      { email: email },
+      { id: userId },
       {
         expiresIn: '1d',
         secret: 'ACCESS_SECRET',
@@ -118,7 +120,7 @@ export class AuthService {
     );
 
     const refreshToken = await this.jwtService.signAsync(
-      { email: email },
+      { id: userId },
       {
         expiresIn: '30d',
         secret: 'REFRESH_SECRET',

@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { UserDocument } from './schema/user.schema';
 import { Model } from 'mongoose';
@@ -63,4 +63,15 @@ export class UserService {
 
     return `user${userCount + counter}`;
   }
+
+  async getUserIdByEmail(email: string):Promise<string> {
+    const user = await this.userModel.findOne({email:email}, {id:1}).exec()
+    
+    if(!user){
+      throw new InternalServerErrorException("something is go wrong!")
+    }
+
+    return user.id.toString()
+  }
+
 }
