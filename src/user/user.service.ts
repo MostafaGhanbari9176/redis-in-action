@@ -2,12 +2,14 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { UserDocument } from './schema/user.schema';
 import { Model } from 'mongoose';
+import { RedisService } from 'src/redis/redis.service';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectModel(UserDocument.name)
     private readonly userModel: Model<UserDocument>,
+    private readonly redis: RedisService,
   ) { }
 
   /**
@@ -37,7 +39,28 @@ export class UserService {
   async createUser(email: string): Promise<UserDocument> {
     const user = new this.userModel();
     user.email = email;
+    user.username = await this.getNewUserName(email);
 
-    return await user.save();
+    await user.save();
+
+    this.redis.unlock(user.username);
+
+    return user;
+  }
+
+  private async getNewUserName(email: string, counter:number = 1): Promise<string> {
+    const username = await this.generateUsername(counter);
+    const free = await this.redis.lock(username);
+    if (!free) {
+      return await this.getNewUserName(email, counter + 1);
+    }
+
+    return username;
+  }
+
+  private async generateUsername(counter:number): Promise<string> {
+    const userCount = await this.userModel.countDocuments();
+
+    return `user${userCount + counter}`;
   }
 }
