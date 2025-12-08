@@ -5,6 +5,9 @@ import { Document, Types } from 'mongoose';
 export class UserDocument extends Document<Types.ObjectId> {
   declare id: string;
 
+  @Prop({ type: String, required: true, unique: true })
+  username: string;
+
   @Prop({ type: String, required: false })
   name: string;
 
