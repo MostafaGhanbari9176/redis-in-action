@@ -90,14 +90,21 @@ export class UserService {
       return
     }
 
-    const free = await this.redis.lock(username)
+    const normalized = username?.toLocaleLowerCase()  
+
+    const validUsernameRegex = /^[a-z0-9.-]+$/;
+    if (!validUsernameRegex.test(username)) {
+      throw new BadRequestException("Username must contain only lowercase letters (a-z), digits (0-9), dots (.), or hyphens (-)!");
+    }
+
+    const free = await this.redis.lock(normalized)
     if (!free) {
       throw new BadRequestException("username is not free!")
     }
 
-    const exists = await this.userModel.exists({ username: username }).exec()
+    const exists = await this.userModel.exists({ username: normalized }).exec()
     if (exists) {
-      this.redis.unlock(username)
+      this.redis.unlock(normalized)
       throw new BadRequestException("username is taken!")
     }
   }
