@@ -60,5 +60,22 @@ export class RedisService {
         return await this.client.exists(key) === 1
     }
 
+    async lock(value: string): Promise<boolean> {
+        const free = await this.setNX(this.getLockKey(value), value, 600/* 10 minutes */)
+        return free !== null && free !== 'OK'
+    }
+
+    async isLock(value: string): Promise<boolean> {
+        return await this.exists(this.getLockKey(value))
+    }
+
+    async unlock(value: string): Promise<boolean> {
+        return await this.client.del(this.getLockKey(value)) === 1
+    }
+
+    getLockKey(value: string) {
+        return `lock:${value}`
+    }
+
 }
 
