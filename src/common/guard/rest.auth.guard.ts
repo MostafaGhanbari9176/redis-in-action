@@ -2,7 +2,7 @@ import { CanActivate, ExecutionContext, UnauthorizedException } from "@nestjs/co
 import { JwtService } from "@nestjs/jwt";
 import { Request } from "express";
 
-export class AuthGuard implements CanActivate {
+export class RESTAuthGuard implements CanActivate {
     constructor(private readonly jwtService: JwtService) { }
 
     async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -29,3 +29,4 @@ export class AuthGuard implements CanActivate {
     }
 
 }
+

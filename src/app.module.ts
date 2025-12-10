@@ -8,7 +8,7 @@ import { RedisModule } from './redis/redis.module';
 import { FixedWindowRateLimitGuard } from './common/guard/rate_limitation/fixed-window-limitation.guard';
 import { SlidingWindowLimitationGuard } from './common/guard/rate_limitation/sliding-window-limitation.guard';
 import { TokenBucketLimitationGuard } from './common/guard/rate_limitation/toke-bucket-limitation.guard';
-import { AuthGuard } from './common/guard/auth.guard';
+import { RESTAuthGuard } from './common/guard/ws.auth.guard';
 import { registerUserDecoratorDb } from './decorator/user.decorator';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
@@ -24,7 +24,7 @@ import { Connection } from 'mongoose';
     },
     {
       provide: "APP_GUARD",
-      useClass: AuthGuard
+      useClass: RESTAuthGuard
     }
   ],
 })

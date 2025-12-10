@@ -5,6 +5,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { UserDocument, UserSchema } from './schema/user.schema';
 import { RedisModule } from '../redis/redis.module';
 import { UserNameService } from './username.service';
+import { UserNameGateway } from './username.gateway';
 
 @Module({
   imports: [
@@ -14,7 +15,15 @@ import { UserNameService } from './username.service';
     ]),
   ],
   controllers: [UserController],
-  providers: [UserService, UserNameService],
-  exports: [UserService, UserNameService],
+  providers: [
+    UserService,
+    UserNameService,
+    UserNameGateway
+  ],
+  exports: [
+    UserService,
+    UserNameService,
+    UserNameGateway
+  ],
 })
-export class UserModule {}
+export class UserModule { }
