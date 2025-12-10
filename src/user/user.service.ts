@@ -47,6 +47,7 @@ export class UserService {
     await user.save();
 
     this.redis.unlock(user.username);
+    this.userNameService.updateUserNameLookup(user.username)
 
     return user;
   }
@@ -62,11 +63,14 @@ export class UserService {
   }
 
   async updateUser(user: UserDocument, newData: UpdateUserDto) {
-    this.userNameService.checkAndLockUserName(newData.username)
+    if (newData.username) {
+      await this.userNameService.checkAndLockUserName(newData.username)
+    }
 
     await user.updateOne(newData)
-    
-    if(newData.username){
+
+    if (newData.username) {
+      this.userNameService.updateUserNameLookup(newData.username)
       this.redis.unlock(newData.username)
     }
   }

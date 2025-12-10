@@ -50,6 +50,10 @@ export class UserNameService implements OnModuleInit {
 
     }
 
+    async updateUserNameLookup(username:string){
+        await this.redisService.set(this.getLookupKey(username), username)
+    }
+
     async usernameIsAvailable(username:string):Promise<Boolean>{
         this.validateUsername(username)
 
@@ -83,11 +87,7 @@ export class UserNameService implements OnModuleInit {
         return `user${userCount + counter}`;
     }
 
-    async checkAndLockUserName(username: string | undefined) {
-        if (!username) {
-            return
-        }
-
+    async checkAndLockUserName(username: string) {
         const free = await this.usernameIsAvailable(username)
         if (!free) {
             throw new BadRequestException("Username is not available")
@@ -105,7 +105,7 @@ export class UserNameService implements OnModuleInit {
     }
 
     private getLookupKey(value: string) {
-        return `lookup:${value}`;
+        return `lookup:username:${value}`;
     }
 
 }
